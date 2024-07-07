@@ -23,9 +23,26 @@ class TokenType(Enum):
     GREATER = auto()
     GREATER_EQUAL = auto()
     STRING = auto()
-    
-    # New token type for number literals
     NUMBER = auto()
+    IDENTIFIER = auto()
+    
+    # New token types for reserved words
+    AND = auto()
+    CLASS = auto()
+    ELSE = auto()
+    FALSE = auto()
+    FOR = auto()
+    FUN = auto()
+    IF = auto()
+    NIL = auto()
+    OR = auto()
+    PRINT = auto()
+    RETURN = auto()
+    SUPER = auto()
+    THIS = auto()
+    TRUE = auto()
+    VAR = auto()
+    WHILE = auto()
     
     EOF = auto()
 
@@ -47,6 +64,24 @@ class Scanner:
         self.current = 0
         self.line = 1
         self.had_error = False
+        self.keywords = {
+            "and": TokenType.AND,
+            "class": TokenType.CLASS,
+            "else": TokenType.ELSE,
+            "false": TokenType.FALSE,
+            "for": TokenType.FOR,
+            "fun": TokenType.FUN,
+            "if": TokenType.IF,
+            "nil": TokenType.NIL,
+            "or": TokenType.OR,
+            "print": TokenType.PRINT,
+            "return": TokenType.RETURN,
+            "super": TokenType.SUPER,
+            "this": TokenType.THIS,
+            "true": TokenType.TRUE,
+            "var": TokenType.VAR,
+            "while": TokenType.WHILE
+        }
 
     def scan_tokens(self):
         while not self.is_at_end():
@@ -96,6 +131,8 @@ class Scanner:
             self.string()
         elif c.isdigit():
             self.number()
+        elif self.is_alpha(c):
+            self.identifier()
         elif c == '\n':
             self.line += 1
         elif c.isspace():
@@ -134,6 +171,20 @@ class Scanner:
 
         value = float(self.source[self.start:self.current])
         self.add_token(TokenType.NUMBER, value)
+
+    def identifier(self):
+        while self.is_alphanumeric(self.peek()):
+            self.advance()
+
+        text = self.source[self.start:self.current]
+        type = self.keywords.get(text, TokenType.IDENTIFIER)
+        self.add_token(type)
+
+    def is_alpha(self, c):
+        return c.isalpha() or c == '_'
+
+    def is_alphanumeric(self, c):
+        return c.isalnum() or c == '_'
 
     def is_at_end(self):
         return self.current >= len(self.source)

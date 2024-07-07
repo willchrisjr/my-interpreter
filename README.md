@@ -233,3 +233,62 @@ The scanner will now:
 
 This update further expands our scanner's capabilities, allowing it to handle another important data type in the Lox language. The scanner can now recognize and tokenize all basic literal types (strings and numbers) as well as all operators and punctuation used in Lox.
 This update allows the scanner to handle number literals as specified, while still recognizing and outputting all previously supported tokens. The scanner now supports a wide range of Lox syntax elements, including literals, operators, and punctuation.
+
+### Added Support for Identifiers
+
+We've extended our scanner to recognize and handle identifiers. Here are the key changes:
+
+1. Added a new token type to the `TokenType` enum: `IDENTIFIER`.
+2. Implemented a new `identifier` method in the `Scanner` class to handle identifiers:
+   - It consumes characters that are alphanumeric or underscores.
+3. Added two new helper methods:
+   - `is_alpha`: checks if a character is alphabetic or an underscore.
+   - `is_alphanumeric`: checks if a character is alphanumeric or an underscore.
+4. Updated the `scan_token` method to call the `identifier` method when it encounters an alphabetic character or underscore.
+
+These changes allow our scanner to correctly tokenize identifiers. For example:
+foo bar _hello
+
+
+The scanner will now:
+- Recognize identifiers that start with a letter or underscore and can contain letters, digits, or underscores.
+- Create IDENTIFIER tokens for these lexemes.
+- Correctly handle identifiers in the context of other tokens.
+
+This update completes the basic lexical analysis capabilities of our scanner. It can now recognize and tokenize all fundamental elements of the Lox language, including:
+- Literals (strings and numbers)
+- Operators and punctuation
+- Identifiers
+
+The scanner is now capable of breaking down Lox source code into a sequence of tokens that can be used by subsequent stages of the interpreter, such as parsing.
+This update allows the scanner to handle identifiers as specified, while still recognizing and outputting all previously supported tokens. The scanner now supports all basic lexical elements of the Lox language.
+
+### Added Support for Reserved Words
+
+We've extended our scanner to recognize and handle reserved words in the Lox language. Here are the key changes:
+
+1. Added new token types to the `TokenType` enum for each reserved word: `AND`, `CLASS`, `ELSE`, `FALSE`, `FOR`, `FUN`, `IF`, `NIL`, `OR`, `PRINT`, `RETURN`, `SUPER`, `THIS`, `TRUE`, `VAR`, and `WHILE`.
+2. Created a `keywords` dictionary in the `Scanner` class that maps reserved word strings to their corresponding `TokenType`.
+3. Updated the `identifier` method to check if the scanned identifier is a reserved word:
+   - If the identifier matches a reserved word, it creates a token of the corresponding reserved word type.
+   - If not, it creates an `IDENTIFIER` token as before.
+
+These changes allow our scanner to correctly tokenize reserved words. For example:
+if (true) {
+print "Hello, World!";
+}
+
+
+The scanner will now:
+- Recognize reserved words and create the appropriate token types for them (e.g., `IF`, `TRUE`, `PRINT`).
+- Still correctly handle identifiers that are not reserved words.
+- Distinguish between reserved words and identifiers in the context of other tokens.
+
+This update completes the lexical analysis capabilities of our scanner for the Lox language. It can now recognize and tokenize all elements of Lox, including:
+- Literals (strings and numbers)
+- Operators and punctuation
+- Identifiers
+- Reserved words
+
+The scanner is now fully capable of breaking down Lox source code into a complete and accurate sequence of tokens that can be used by subsequent stages of the interpreter, such as parsing.
+This update allows the scanner to handle reserved words as specified, while still recognizing and outputting all previously supported tokens. The scanner now supports all lexical elements of the Lox language, including reserved words.
