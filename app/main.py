@@ -1,8 +1,9 @@
 import sys
 from enum import Enum, auto
 
+# Define an enumeration for different types of tokens
 class TokenType(Enum):
-    # Existing token types
+    # Single-character tokens
     LEFT_PAREN = auto()
     RIGHT_PAREN = auto()
     LEFT_BRACE = auto()
@@ -26,7 +27,7 @@ class TokenType(Enum):
     NUMBER = auto()
     IDENTIFIER = auto()
     
-    # New token types for reserved words
+    # Reserved words
     AND = auto()
     CLASS = auto()
     ELSE = auto()
@@ -44,27 +45,30 @@ class TokenType(Enum):
     VAR = auto()
     WHILE = auto()
     
+    # End-of-file token
     EOF = auto()
 
+# Define a class to represent a token
 class Token:
     def __init__(self, type, lexeme, literal, line):
-        self.type = type
-        self.lexeme = lexeme
-        self.literal = literal
-        self.line = line
+        self.type = type  # The type of token
+        self.lexeme = lexeme  # The actual text of the token
+        self.literal = literal  # The literal value (if any)
+        self.line = line  # The line number where the token appears
 
     def __str__(self):
         return f"{self.type.name} {self.lexeme} {self.literal if self.literal is not None else 'null'}"
 
+# Define a class to scan the source code and generate tokens
 class Scanner:
     def __init__(self, source):
-        self.source = source
-        self.tokens = []
-        self.start = 0
-        self.current = 0
-        self.line = 1
-        self.had_error = False
-        self.keywords = {
+        self.source = source  # The source code to scan
+        self.tokens = []  # List to hold the generated tokens
+        self.start = 0  # Start position of the current token
+        self.current = 0  # Current position in the source code
+        self.line = 1  # Current line number
+        self.had_error = False  # Flag to indicate if an error occurred
+        self.keywords = {  # Dictionary of reserved words
             "and": TokenType.AND,
             "class": TokenType.CLASS,
             "else": TokenType.ELSE,
@@ -83,16 +87,18 @@ class Scanner:
             "while": TokenType.WHILE
         }
 
+    # Method to scan all tokens in the source code
     def scan_tokens(self):
         while not self.is_at_end():
-            self.start = self.current
-            self.scan_token()
+            self.start = self.current  # Update the start position
+            self.scan_token()  # Scan the next token
 
-        self.tokens.append(Token(TokenType.EOF, "", None, self.line))
+        self.tokens.append(Token(TokenType.EOF, "", None, self.line))  # Add EOF token at the end
         return self.tokens
 
+    # Method to scan a single token
     def scan_token(self):
-        c = self.advance()
+        c = self.advance()  # Get the next character
         if c == '(':
             self.add_token(TokenType.LEFT_PAREN)
         elif c == ')':
@@ -122,24 +128,25 @@ class Scanner:
         elif c == '>':
             self.add_token(TokenType.GREATER_EQUAL if self.match('=') else TokenType.GREATER)
         elif c == '/':
-            if self.match('/'):
+            if self.match('/'):  # Handle comments
                 while self.peek() != '\n' and not self.is_at_end():
                     self.advance()
             else:
                 self.add_token(TokenType.SLASH)
         elif c == '"':
-            self.string()
+            self.string()  # Handle string literals
         elif c.isdigit():
-            self.number()
+            self.number()  # Handle number literals
         elif self.is_alpha(c):
-            self.identifier()
+            self.identifier()  # Handle identifiers and reserved words
         elif c == '\n':
-            self.line += 1
+            self.line += 1  # Handle new lines
         elif c.isspace():
             pass  # Ignore whitespace
         else:
             self.error(self.line, f"Unexpected character: {c}")
 
+    # Method to handle string literals
     def string(self):
         while self.peek() != '"' and not self.is_at_end():
             if self.peek() == '\n':
@@ -150,49 +157,51 @@ class Scanner:
             self.error(self.line, "Unterminated string.")
             return
 
-        # The closing ".
-        self.advance()
-
-        # Trim the surrounding quotes.
-        value = self.source[self.start + 1 : self.current - 1]
+        self.advance()  # Consume the closing quote
+        value = self.source[self.start + 1 : self.current - 1]  # Extract the string value
         self.add_token(TokenType.STRING, value)
 
+    # Method to handle number literals
     def number(self):
         while self.peek().isdigit():
             self.advance()
 
-        # Look for a fractional part.
         if self.peek() == '.' and self.peek_next().isdigit():
-            # Consume the "."
-            self.advance()
+            self.advance()  # Consume the decimal point
 
             while self.peek().isdigit():
                 self.advance()
 
-        value = float(self.source[self.start:self.current])
+        value = float(self.source[self.start:self.current])  # Convert the number to a float
         self.add_token(TokenType.NUMBER, value)
 
+    # Method to handle identifiers and reserved words
     def identifier(self):
         while self.is_alphanumeric(self.peek()):
             self.advance()
 
         text = self.source[self.start:self.current]
-        type = self.keywords.get(text, TokenType.IDENTIFIER)
+        type = self.keywords.get(text, TokenType.IDENTIFIER)  # Check if the identifier is a reserved word
         self.add_token(type)
 
+    # Helper method to check if a character is a letter or underscore
     def is_alpha(self, c):
         return c.isalpha() or c == '_'
 
+    # Helper method to check if a character is alphanumeric or underscore
     def is_alphanumeric(self, c):
         return c.isalnum() or c == '_'
 
+    # Helper method to check if the end of the source code is reached
     def is_at_end(self):
         return self.current >= len(self.source)
 
+    # Helper method to advance to the next character
     def advance(self):
         self.current += 1
         return self.source[self.current - 1]
 
+    # Helper method to match the next character with an expected character
     def match(self, expected):
         if self.is_at_end():
             return False
@@ -201,24 +210,29 @@ class Scanner:
         self.current += 1
         return True
 
+    # Helper method to peek at the current character without consuming it
     def peek(self):
         if self.is_at_end():
             return '\0'
         return self.source[self.current]
 
+    # Helper method to peek at the next character without consuming it
     def peek_next(self):
         if self.current + 1 >= len(self.source):
             return '\0'
         return self.source[self.current + 1]
 
+    # Helper method to add a token to the list of tokens
     def add_token(self, type, literal=None):
         text = self.source[self.start:self.current]
         self.tokens.append(Token(type, text, literal, self.line))
 
+    # Helper method to report an error
     def error(self, line, message):
         print(f"[line {line}] Error: {message}", file=sys.stderr)
         self.had_error = True
 
+# Main function to run the scanner
 def main():
     print("Logs from your program will appear here!", file=sys.stderr)
 

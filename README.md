@@ -1,35 +1,148 @@
-# My Interpreter
 
-This project is an implementation of an interpreter for the Lox programming language, based on the book "Crafting Interpreters" by Robert Nystrom.
+# Tokenizer
 
-## Current Status
+This project is a tokenizer (or lexical analyzer) written in Python. It reads a source code file, breaks it down into a series of tokens, and prints these tokens. This is a fundamental step in the process of interpreting or compiling a programming language.
 
-We have implemented a basic scanner (lexer) that can tokenize a subset of the Lox language. Currently, it supports:
+## Table of Contents
 
-- Parentheses
-- Braces
-- Basic error reporting for unexpected characters
-- EOF (End of File) token
+- [Overview](#overview)
+- [Token Types](#token-types)
+- [Classes](#classes)
+  - [TokenType](#tokentype)
+  - [Token](#token)
+  - [Scanner](#scanner)
+- [Usage](#usage)
+- [Error Handling](#error-handling)
+- [Example](#example)
 
-## Code Structure
+## Overview
 
-The main components of our code are:
+The tokenizer reads the source code character by character, identifies meaningful sequences (tokens), and categorizes them. Tokens can represent keywords, operators, identifiers, literals, and other syntactic elements.
 
-1. `TokenType` enum: Defines the types of tokens our scanner can recognize.
-2. `Token` class: Represents individual tokens with type, lexeme, and literal value.
-3. `Scanner` class: Handles the tokenization process.
-4. `main` function: Orchestrates the program flow, reads input, and outputs results.
+## Token Types
 
-## Recent Changes
+The `TokenType` enumeration defines the different types of tokens that the tokenizer can recognize. These include:
 
-### Added Support for Braces
+- Single-character tokens: `LEFT_PAREN`, `RIGHT_PAREN`, `LEFT_BRACE`, `RIGHT_BRACE`, `COMMA`, `DOT`, `MINUS`, `PLUS`, `SEMICOLON`, `STAR`, `SLASH`, `EQUAL`, `BANG`, `LESS`, `GREATER`
+- One or two character tokens: `EQUAL_EQUAL`, `BANG_EQUAL`, `LESS_EQUAL`, `GREATER_EQUAL`
+- Literals: `STRING`, `NUMBER`, `IDENTIFIER`
+- Keywords: `AND`, `CLASS`, `ELSE`, `FALSE`, `FOR`, `FUN`, `IF`, `NIL`, `OR`, `PRINT`, `RETURN`, `SUPER`, `THIS`, `TRUE`, `VAR`, `WHILE`
+- End-of-file token: `EOF`
 
-We've extended our scanner to recognize braces in addition to parentheses. Here's what we changed:
+## Classes
+
+### TokenType
+
+The `TokenType` class is an enumeration that defines all possible types of tokens. It uses the `auto()` function to automatically assign values to the enumeration members.
+
+### Token
+
+The `Token` class represents a token. It has the following attributes:
+
+- `type`: The type of the token (an instance of `TokenType`).
+- `lexeme`: The actual text of the token.
+- `literal`: The literal value of the token (if any).
+- `line`: The line number where the token appears.
+
+The `__str__` method provides a string representation of the token for easy printing.
+
+### Scanner
+
+The `Scanner` class is responsible for scanning the source code and generating tokens. It has the following attributes:
+
+- `source`: The source code to scan.
+- `tokens`: A list to hold the generated tokens.
+- `start`: The start position of the current token.
+- `current`: The current position in the source code.
+- `line`: The current line number.
+- `had_error`: A flag to indicate if an error occurred.
+- `keywords`: A dictionary of reserved words.
+
+#### Methods
+
+- `scan_tokens()`: Scans all tokens in the source code and returns the list of tokens.
+- `scan_token()`: Scans a single token.
+- `string()`: Handles string literals.
+- `number()`: Handles number literals.
+- `identifier()`: Handles identifiers and reserved words.
+- `is_alpha(c)`: Checks if a character is a letter or underscore.
+- `is_alphanumeric(c)`: Checks if a character is alphanumeric or underscore.
+- `is_at_end()`: Checks if the end of the source code is reached.
+- `advance()`: Advances to the next character.
+- `match(expected)`: Matches the next character with an expected character.
+- `peek()`: Peeks at the current character without consuming it.
+- `peek_next()`: Peeks at the next character without consuming it.
+- `add_token(type, literal=None)`: Adds a token to the list of tokens.
+- `error(line, message)`: Reports an error.
+
+## Usage
+
+To use the tokenizer, run the script with the `tokenize` command followed by the filename of the source code to be tokenized:
+
+```sh
+python your_program.py tokenize <filename>
+```
+
+For example:
+
+```sh
+python your_program.py tokenize example.txt
+```
+
+## Error Handling
+
+The `Scanner` class includes basic error handling. If an unexpected character is encountered, an error message is printed to `stderr`, and the `had_error` flag is set to `True`. If an unterminated string is encountered, an error message is printed, and the scanning process continues.
+
+## Example
+
+Consider the following source code in a file named `example.txt`:
+
+```txt
+var x = 10;
+print(x);
+```
+
+Running the tokenizer on this file:
+
+```sh
+python your_program.py tokenize example.txt
+```
+
+Will produce the following output:
+
+```txt
+VAR var null
+IDENTIFIER x null
+EQUAL = null
+NUMBER 10 10.0
+SEMICOLON ; null
+PRINT print null
+LEFT_PAREN ( null
+IDENTIFIER x null
+RIGHT_PAREN ) null
+SEMICOLON ; null
+EOF  null
+```
+
+This output shows the sequence of tokens identified by the tokenizer, including their types, lexemes, and literal values (if any).
+
+## Conclusion
+
+This tokenizer is a fundamental component of a compiler or interpreter. It breaks down source code into tokens, which can then be used for parsing and further processing.
+
+
+# Detailed explanation of features and functionality
+
+
+
+### Braces
+
+Extended the scanner to recognize braces in addition to parentheses. Here are the key functions:
 
 1. Updated the `TokenType` enum to include `LEFT_BRACE` and `RIGHT_BRACE`.
 2. Modified the `scan_token` method in the `Scanner` class to recognize '{' and '}' characters and create the appropriate tokens.
 
-The scanner now handles:
+The scanner  handles:
 - Left parenthesis: '('
 - Right parenthesis: ')'
 - Left brace: '{'
@@ -51,16 +164,16 @@ LEFT_BRACE { null
 RIGHT_BRACE } null
 ```
 
-## Recent Changes
 
-### Added Support for Additional Single-Character Tokens
 
-We've extended our scanner to recognize several new single-character tokens. Here's what we changed:
+### Additional Single-Character Tokens
+
+Extended the scanner to recognize several new single-character tokens. Here are the key functions:
 
 1. Updated the `TokenType` enum to include new token types: `COMMA`, `DOT`, `MINUS`, `PLUS`, `SEMICOLON`, and `STAR`.
 2. Modified the `scan_token` method in the `Scanner` class to recognize these new characters and create the appropriate tokens.
 
-The scanner now handles the following single-character tokens:
+The scanner can handle the following single-character tokens:
 - Comma: ','
 - Dot: '.'
 - Minus: '-'
@@ -83,39 +196,35 @@ DOT . null
 PLUS + null
 
 
-This update significantly expands the range of Lox syntax our scanner can recognize, bringing us closer to a complete lexical analysis of the language.
-This README entry focuses on the latest changes we've made, explaining the new single-character tokens we've added support for and how they fit into the existing scanner structure.
+This significantly expands the range of Lox syntax our scanner can recognize, bringing us closer to a complete lexical analysis of the language.
 
-## Recent Changes
 
-### Added Support for Lexical Error Handling
+### Lexical Error Handling
 
-We've updated our scanner to handle and report lexical errors. Here are the key changes:
+Handle and report lexical errors. Here are the key functions:
 
-1. The `Scanner` class now keeps track of the current line number.
-2. We've added an `error` method to the `Scanner` class that reports errors to stderr with the required `[line N]` prefix.
+1. The `Scanner` class keeps track of the current line number.
+2. Added an `error` method to the `Scanner` class that reports errors to stderr with the required `[line N]` prefix.
 3. The `scan_token` method now reports unexpected characters as errors.
-4. We've added a `had_error` flag to the `Scanner` class to track if any errors occurred during scanning.
-5. The `main` function now sets the exit code to 65 if any lexical errors were encountered.
+4. Added a `had_error` flag to the `Scanner` class to track if any errors occurred during scanning.
+5. The `main` function sets the exit code to 65 if any lexical errors were encountered.
 
-These changes allow our scanner to continue processing the input even after encountering an error, reporting all lexical errors it finds. Valid tokens are still output to stdout, while error messages are sent to stderr.
+These changes allow the scanner to continue processing the input even after encountering an error, reporting all lexical errors it finds. Valid tokens are still output to stdout, while error messages are sent to stderr.
 
 ### Error Output
 
-Lexical errors are now reported in the following format:
+Lexical errors are reported in the following format:
 [line N] Error: Unexpected character: X
 
 
 Where `N` is the line number and `X` is the unexpected character.
 
-This update improves our scanner's robustness and error reporting capabilities, bringing it closer to a production-ready lexical analyzer.
-This update allows the scanner to handle and report lexical errors as specified, while still recognizing and outputting valid tokens.
+This improves the scanner's robustness and error reporting capabilities, bringing it closer to a production-ready lexical analyzer.
 
-## Recent Changes
 
-### Added Support for Assignment and Equality Operators
+### Assignment and Equality Operators
 
-We've extended our scanner to recognize assignment (=) and equality (==) operators, as well as the bang (!) and bang-equal (!=) operators. Here are the key changes:
+Extended the scanner to recognize assignment (=) and equality (==) operators, as well as the bang (!) and bang-equal (!=) operators. Here are the key functions:
 
 1. Added new token types to the `TokenType` enum: `EQUAL`, `EQUAL_EQUAL`, `BANG`, and `BANG_EQUAL`.
 2. Updated the `scan_token` method to handle these new operators:
@@ -130,13 +239,11 @@ if (x != 20) { ... }
 
 
 The scanner can now distinguish between single-character (= and !) and two-character (== and !=) operators, improving its ability to handle more complex Lox syntax.
-This update allows the scanner to handle assignment and equality operators as specified, while still recognizing and outputting all previously supported tokens.
 
-## Recent Changes
 
-### Added Support for Relational Operators
+### Relational Operators
 
-We've extended our scanner to recognize relational operators (<, >, <=, >=). Here are the key changes:
+Extended the scanner to recognize relational operators (<, >, <=, >=). Here are the key functions:
 
 1. Added new token types to the `TokenType` enum: `LESS`, `LESS_EQUAL`, `GREATER`, and `GREATER_EQUAL`.
 2. Updated the `scan_token` method to handle these new operators:
@@ -150,14 +257,12 @@ if (y >= 20) { ... }
 
 The scanner can now distinguish between single-character (< and >) and two-character (<= and >=) relational operators, further improving its ability to handle complex Lox syntax.
 
-This update completes the set of basic comparison operators in our scanner, allowing it to recognize all standard relational and equality operators used in most programming languages.
-This update allows the scanner to handle relational operators as specified, while still recognizing and outputting all previously supported tokens
+This completes the set of basic comparison operators in our scanner, allowing it to recognize all standard relational and equality operators used in most programming languages.
 
-## Recent Changes
 
-### Added Support for Division Operator and Comments
+### Division Operator and Comments
 
-We've extended our scanner to recognize the division operator (/) and handle comments (//). Here are the key changes:
+Extended the scanner to recognize the division operator (/) and handle comments (//). Here are the key functions:
 
 1. Added a new token type to the `TokenType` enum: `SLASH`.
 2. Updated the `scan_token` method to handle the slash character:
@@ -168,7 +273,7 @@ We've extended our scanner to recognize the division operator (/) and handle com
    - Comments are completely ignored and do not produce any tokens.
 4. Added a new `peek` method to look at the current character without consuming it, used for handling comments.
 
-These changes allow our scanner to correctly tokenize expressions containing the division operator and to ignore comments, such as:
+These allow scanner to correctly tokenize expressions containing the division operator and to ignore comments, such as:
 x = 10 / 2;  // This is a comment
 
 
@@ -176,14 +281,12 @@ The scanner will now:
 - Recognize '/' as a SLASH token when used as a division operator.
 - Ignore everything after '//' until the end of the line, treating it as a comment.
 
-This update improves our scanner's ability to handle more complex Lox syntax and adds support for code comments, which are crucial for code readability and documentation.
-This update allows the scanner to handle the division operator and comments as specified, while still recognizing and outputting all previously supported tokens.
+This improves scanner's ability to handle more complex Lox syntax and adds support for code comments, which are crucial for code readability and documentation.It also allows the scanner to handle the division operator and comments as specified. 
 
-## Recent Changes
 
-### Added Support for String Literals
+### String Literals
 
-We've extended our scanner to recognize and handle string literals. Here are the key changes:
+Extended the scanner to recognize and handle string literals. Here are the key functions:
 
 1. Added a new token type to the `TokenType` enum: `STRING`.
 2. Implemented a new `string` method in the `Scanner` class to handle string literals:
@@ -193,7 +296,7 @@ We've extended our scanner to recognize and handle string literals. Here are the
 3. Updated the `scan_token` method to call the `string` method when it encounters a double quote.
 4. Modified the `add_token` method to accept an optional `literal` parameter, used for storing the string value.
 
-These changes allow our scanner to correctly tokenize string literals and handle unterminated strings, such as:
+These changes allow scanner to correctly tokenize string literals and handle unterminated strings, such as:
 "This is a valid string"
 "This is an unterminated string
 
@@ -203,14 +306,13 @@ The scanner will now:
 - Store the string value (without the surrounding quotes) as the token's literal value.
 - Report an error for unterminated strings, including the line number where the string started.
 
-This update significantly improves our scanner's capabilities, allowing it to handle an important data type in the Lox language. It also demonstrates how the scanner can handle multi-line tokens and report more complex lexical errors.
-This update allows the scanner to handle string literals as specified, including error reporting for unterminated strings, while still recognizing and outputting all previously supported tokens.
+This significantly improves our scanner's capabilities, allowing it to handle an important data type in the Lox language. It also demonstrates how the scanner can handle multi-line tokens and report more complex lexical errors and allows the scanner to handle string literals as specified, including error reporting for unterminated strings, while still recognizing and outputting all previously supported tokens.
 
-## Recent Changes
 
-### Added Support for Number Literals
 
-We've extended our scanner to recognize and handle number literals. Here are the key changes:
+### Number Literals
+
+Extended the scanner to recognize and handle number literals. Here are the key functions:
 
 1. Added a new token type to the `TokenType` enum: `NUMBER`.
 2. Implemented a new `number` method in the `Scanner` class to handle number literals:
@@ -231,12 +333,11 @@ The scanner will now:
 - Create NUMBER tokens for these literals.
 - Store the numeric value as a float in the token's literal value.
 
-This update further expands our scanner's capabilities, allowing it to handle another important data type in the Lox language. The scanner can now recognize and tokenize all basic literal types (strings and numbers) as well as all operators and punctuation used in Lox.
-This update allows the scanner to handle number literals as specified, while still recognizing and outputting all previously supported tokens. The scanner now supports a wide range of Lox syntax elements, including literals, operators, and punctuation.
+This further expands the scanner's capabilities, allowing it to handle another important data type in the Lox language. It can recognize and tokenize all basic literal types (strings and numbers) as well as all operators and punctuation used in Lox.
 
-### Added Support for Identifiers
+### Identifiers
 
-We've extended our scanner to recognize and handle identifiers. Here are the key changes:
+Extended scanner to recognize and handle identifiers. Here are the key functions:
 
 1. Added a new token type to the `TokenType` enum: `IDENTIFIER`.
 2. Implemented a new `identifier` method in the `Scanner` class to handle identifiers:
@@ -255,17 +356,16 @@ The scanner will now:
 - Create IDENTIFIER tokens for these lexemes.
 - Correctly handle identifiers in the context of other tokens.
 
-This update completes the basic lexical analysis capabilities of our scanner. It can now recognize and tokenize all fundamental elements of the Lox language, including:
+This completes the basic lexical analysis capabilities of the scanner. It can now recognize and tokenize all fundamental elements of the Lox language, including:
 - Literals (strings and numbers)
 - Operators and punctuation
 - Identifiers
 
 The scanner is now capable of breaking down Lox source code into a sequence of tokens that can be used by subsequent stages of the interpreter, such as parsing.
-This update allows the scanner to handle identifiers as specified, while still recognizing and outputting all previously supported tokens. The scanner now supports all basic lexical elements of the Lox language.
 
-### Added Support for Reserved Words
+### Reserved Words
 
-We've extended our scanner to recognize and handle reserved words in the Lox language. Here are the key changes:
+Extended the scanner to recognize and handle reserved words in the Lox language. Here are the key functions:
 
 1. Added new token types to the `TokenType` enum for each reserved word: `AND`, `CLASS`, `ELSE`, `FALSE`, `FOR`, `FUN`, `IF`, `NIL`, `OR`, `PRINT`, `RETURN`, `SUPER`, `THIS`, `TRUE`, `VAR`, and `WHILE`.
 2. Created a `keywords` dictionary in the `Scanner` class that maps reserved word strings to their corresponding `TokenType`.
@@ -279,16 +379,10 @@ print "Hello, World!";
 }
 
 
-The scanner will now:
+The scanner will:
 - Recognize reserved words and create the appropriate token types for them (e.g., `IF`, `TRUE`, `PRINT`).
 - Still correctly handle identifiers that are not reserved words.
 - Distinguish between reserved words and identifiers in the context of other tokens.
 
-This update completes the lexical analysis capabilities of our scanner for the Lox language. It can now recognize and tokenize all elements of Lox, including:
-- Literals (strings and numbers)
-- Operators and punctuation
-- Identifiers
-- Reserved words
 
 The scanner is now fully capable of breaking down Lox source code into a complete and accurate sequence of tokens that can be used by subsequent stages of the interpreter, such as parsing.
-This update allows the scanner to handle reserved words as specified, while still recognizing and outputting all previously supported tokens. The scanner now supports all lexical elements of the Lox language, including reserved words.
